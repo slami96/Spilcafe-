@@ -17,29 +17,31 @@ export default function GameList() {
 
   const [games, setGames] = useState(initialGames);
   const [tableNumber, setTableNumber] = useState("");
-  const [currentTime, setCurrentTime] = useState(new Date());
-  
-  // Update the current time every minute
+  const [, setTick] = useState(0); // Used to force re-renders
+
+  // Update the timer every minute
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTime(new Date());
+      setTick(prev => prev + 1); // Force component to re-render
     }, 60000);
     
     return () => clearInterval(interval);
   }, []);
 
-  // Calculate elapsed time in minutes
+  // Calculate elapsed time and format as HH:MM
   const getElapsedTime = (startTime) => {
-    if (!startTime) return 0;
-    const elapsed = Math.floor((currentTime - new Date(startTime)) / (1000 * 60));
-    return elapsed;
-  };
-
-  // Format elapsed time as HH:MM
-  const formatElapsedTime = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    if (!startTime) return "-";
+    
+    // Calculate elapsed time in milliseconds
+    const elapsed = Date.now() - new Date(startTime).getTime();
+    
+    // Convert to minutes and hours
+    const totalMinutes = Math.floor(elapsed / (1000 * 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    
+    // Format as HH:MM
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   };
 
   // Toggle game status between Available and Unavailable
@@ -58,7 +60,7 @@ export default function GameList() {
         ...game,
         status: "Unavailable",
         table: tableNumber,
-        startTime: new Date().toISOString()
+        startTime: new Date().toISOString() // Store current time
       };
       setTableNumber(""); // Reset table input
     } else {
@@ -75,58 +77,47 @@ export default function GameList() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Game Management</h2>
+    <div>
+      <h1>Admin Panel</h1>
+      <h2>Game Management</h2>
       
-      <div className="mb-4">
-        <label htmlFor="tableNumber" className="block mb-2">Table Number:</label>
+      <div>
+        <label htmlFor="tableNumber">Table Number: </label>
         <input
           type="text"
           id="tableNumber"
           value={tableNumber}
           onChange={(e) => setTableNumber(e.target.value)}
-          className="border p-2 mr-2"
           placeholder="Enter table #"
         />
       </div>
       
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2">Game</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Table</th>
-              <th className="border p-2">Time in Use</th>
-              <th className="border p-2">Actions</th>
+      <table>
+        <thead>
+          <tr>
+            <th>Game</th>
+            <th>Status</th>
+            <th>Table</th>
+            <th>Time in Use</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {games.map((game, index) => (
+            <tr key={index}>
+              <td>{game.name}</td>
+              <td><b>{game.status}</b></td>
+              <td>{game.table || "-"}</td>
+              <td>{game.startTime ? getElapsedTime(game.startTime) : "-"}</td>
+              <td>
+                <button onClick={() => toggleStatus(index)}>
+                  Mark as {game.status === "Available" ? "Unavailable" : "Available"}
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {games.map((game, index) => (
-              <tr key={index} className={game.status === "Unavailable" ? "bg-red-50" : ""}>
-                <td className="border p-2">{game.name}</td>
-                <td className="border p-2 font-bold">{game.status}</td>
-                <td className="border p-2">{game.table || "-"}</td>
-                <td className="border p-2">
-                  {game.startTime ? formatElapsedTime(getElapsedTime(game.startTime)) : "-"}
-                </td>
-                <td className="border p-2">
-                  <button 
-                    onClick={() => toggleStatus(index)}
-                    className={`px-3 py-1 rounded ${
-                      game.status === "Available" 
-                        ? "bg-red-500 text-white" 
-                        : "bg-green-500 text-white"
-                    }`}
-                  >
-                    Mark as {game.status === "Available" ? "Unavailable" : "Available"}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
