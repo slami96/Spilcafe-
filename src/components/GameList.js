@@ -1,19 +1,32 @@
 import { useState, useEffect } from "react";
 
 export default function GameList() {
-  // Predefined list of 10 games with additional properties
+  // Predefined list of 20 famous games with categories
   const initialGames = [
-    { name: "Chess", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "Monopoly", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "Catan", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "Mario Kart", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "Street Fighter", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "Fortnite", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "Call of Duty", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "Minecraft", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "FIFA 24", status: "Available", table: null, startTime: null, playerCount: null },
-    { name: "Among Us", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Chess", category: "Strategy", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Monopoly", category: "Family", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Catan", category: "Strategy", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Scrabble", category: "Word", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Risk", category: "Strategy", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Pandemic", category: "Cooperative", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Ticket to Ride", category: "Family", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Carcassonne", category: "Strategy", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Codenames", category: "Party", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Dominion", category: "Card", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Azul", category: "Abstract", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "7 Wonders", category: "Strategy", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Splendor", category: "Card", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Dixit", category: "Party", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Clue/Cluedo", category: "Mystery", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Terraforming Mars", category: "Strategy", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Uno", category: "Card", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Jenga", category: "Dexterity", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Betrayal at House on the Hill", category: "Mystery", status: "Available", table: null, startTime: null, playerCount: null },
+    { name: "Wingspan", category: "Strategy", status: "Available", table: null, startTime: null, playerCount: null },
   ];
+
+  // Get unique categories from the games list
+  const categories = ["All", ...new Set(initialGames.map(game => game.category))];
 
   // Initialize game history from localStorage or empty array
   const [history, setHistory] = useState(() => {
@@ -32,6 +45,7 @@ export default function GameList() {
   const [time, setTime] = useState(new Date()); // Current time for timer calculations
   const [totalPlayers, setTotalPlayers] = useState(0);
   const [showHistory, setShowHistory] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   // Update timer every second
   useEffect(() => {
@@ -140,6 +154,7 @@ export default function GameList() {
       const historyEntry = {
         id: Date.now(), // Unique ID for the history entry
         gameName: game.name,
+        category: game.category,
         table: game.table,
         playerCount: game.playerCount,
         startTime: game.startTime,
@@ -162,11 +177,32 @@ export default function GameList() {
     setGames(updatedGames);
   };
 
+  // Filter games by category
+  const filteredGames = selectedCategory === "All" 
+    ? games 
+    : games.filter(game => game.category === selectedCategory);
+
   // Clear all history
   const clearHistory = () => {
     if (window.confirm("Are you sure you want to clear all history? This cannot be undone.")) {
       setHistory([]);
     }
+  };
+
+  // Get color for category labels
+  const getCategoryColor = (category) => {
+    const colors = {
+      "Strategy": "#4a6fa5",
+      "Family": "#53a567",
+      "Word": "#9c59b6",
+      "Card": "#e67e22",
+      "Party": "#f1c40f",
+      "Cooperative": "#3498db",
+      "Abstract": "#e74c3c",
+      "Mystery": "#8e44ad",
+      "Dexterity": "#d35400"
+    };
+    return colors[category] || "#7f8c8d"; // Default color if category not found
   };
 
   return (
@@ -199,6 +235,25 @@ export default function GameList() {
         
         <div style={{ fontWeight: "bold", marginTop: "5px", marginBottom: "15px" }}>
           Total Active Players: {totalPlayers}
+        </div>
+
+        {/* Category filter */}
+        <div style={{ marginBottom: "15px" }}>
+          <label htmlFor="categoryFilter" style={{ marginRight: "10px" }}>Filter by Category:</label>
+          <select 
+            id="categoryFilter" 
+            value={selectedCategory} 
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            style={{
+              padding: "5px 10px",
+              borderRadius: "4px",
+              border: "1px solid #ddd"
+            }}
+          >
+            {categories.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
         </div>
         
         <button 
@@ -237,6 +292,7 @@ export default function GameList() {
         <thead>
           <tr style={{ backgroundColor: "#f2f2f2" }}>
             <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Game</th>
+            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Category</th>
             <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Status</th>
             <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Table</th>
             <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Players</th>
@@ -245,30 +301,48 @@ export default function GameList() {
           </tr>
         </thead>
         <tbody>
-          {games.map((game, index) => (
-            <tr key={index} style={{ backgroundColor: game.status === "Unavailable" ? "#ffeeee" : "white" }}>
-              <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.name}</td>
-              <td style={{ padding: "8px", border: "1px solid #ddd", fontWeight: "bold" }}>{game.status}</td>
-              <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.table || "-"}</td>
-              <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.playerCount || "-"}</td>
-              <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.startTime ? getElapsedTime(game.startTime) : "-"}</td>
-              <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                <button 
-                  onClick={() => toggleStatus(index)}
-                  style={{
-                    padding: "5px 10px",
-                    backgroundColor: game.status === "Available" ? "#ff6b6b" : "#4ecdc4",
+          {filteredGames.map((game, index) => {
+            // Find actual index in original array for proper toggle function
+            const originalIndex = games.findIndex(g => 
+              g.name === game.name && g.category === game.category
+            );
+            
+            return (
+              <tr key={index} style={{ backgroundColor: game.status === "Unavailable" ? "#ffeeee" : "white" }}>
+                <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.name}</td>
+                <td style={{ padding: "8px", border: "1px solid #ddd" }}>
+                  <span style={{ 
+                    backgroundColor: getCategoryColor(game.category),
                     color: "white",
-                    border: "none",
+                    padding: "2px 6px",
                     borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Mark as {game.status === "Available" ? "Unavailable" : "Available"}
-                </button>
-              </td>
-            </tr>
-          ))}
+                    fontSize: "0.85em"
+                  }}>
+                    {game.category}
+                  </span>
+                </td>
+                <td style={{ padding: "8px", border: "1px solid #ddd", fontWeight: "bold" }}>{game.status}</td>
+                <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.table || "-"}</td>
+                <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.playerCount || "-"}</td>
+                <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.startTime ? getElapsedTime(game.startTime) : "-"}</td>
+                <td style={{ padding: "8px", border: "1px solid #ddd" }}>
+                  <button 
+                    onClick={() => toggleStatus(originalIndex)}
+                    style={{
+                      padding: "5px 10px",
+                      backgroundColor: game.status === "Available" ? "#ff6b6b" : "#4ecdc4",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Mark as {game.status === "Available" ? "Unavailable" : "Available"}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       
@@ -283,6 +357,7 @@ export default function GameList() {
               <thead>
                 <tr style={{ backgroundColor: "#f2f2f2" }}>
                   <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Game</th>
+                  <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Category</th>
                   <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Table</th>
                   <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Players</th>
                   <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Start Time</th>
@@ -294,6 +369,19 @@ export default function GameList() {
                 {history.map((entry) => (
                   <tr key={entry.id}>
                     <td style={{ padding: "8px", border: "1px solid #ddd" }}>{entry.gameName}</td>
+                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>
+                      {entry.category && (
+                        <span style={{ 
+                          backgroundColor: getCategoryColor(entry.category),
+                          color: "white",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          fontSize: "0.85em"
+                        }}>
+                          {entry.category}
+                        </span>
+                      )}
+                    </td>
                     <td style={{ padding: "8px", border: "1px solid #ddd" }}>{entry.table}</td>
                     <td style={{ padding: "8px", border: "1px solid #ddd" }}>{entry.playerCount}</td>
                     <td style={{ padding: "8px", border: "1px solid #ddd" }}>{formatDate(entry.startTime)}</td>
