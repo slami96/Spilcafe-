@@ -15,33 +15,48 @@ export default function GameList() {
     { name: "Among Us", status: "Available", table: null, startTime: null },
   ];
 
-  const [games, setGames] = useState(initialGames);
+  const [games, setGames] = useState(() => {
+    // Check if we have saved state in localStorage
+    const savedGames = localStorage.getItem('cafeGames');
+    return savedGames ? JSON.parse(savedGames) : initialGames;
+  });
+  
   const [tableNumber, setTableNumber] = useState("");
-  const [, setTick] = useState(0); // Used to force re-renders
+  const [time, setTime] = useState(new Date()); // Current time for timer calculations
 
-  // Update the timer every minute
+  // Update timer every second
   useEffect(() => {
     const interval = setInterval(() => {
-      setTick(prev => prev + 1); // Force component to re-render
-    }, 60000);
+      setTime(new Date());
+    }, 1000); // Update every second instead of every minute
     
     return () => clearInterval(interval);
   }, []);
 
-  // Calculate elapsed time and format as HH:MM
+  // Save games to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('cafeGames', JSON.stringify(games));
+  }, [games]);
+
+  // Calculate and format elapsed time as HH:MM:SS
   const getElapsedTime = (startTime) => {
     if (!startTime) return "-";
     
-    // Calculate elapsed time in milliseconds
-    const elapsed = Date.now() - new Date(startTime).getTime();
+    // Parse startTime and calculate difference in milliseconds
+    const start = new Date(startTime);
+    const elapsed = time.getTime() - start.getTime();
     
-    // Convert to minutes and hours
-    const totalMinutes = Math.floor(elapsed / (1000 * 60));
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
+    // Negative time check (shouldn't happen, but just in case)
+    if (elapsed < 0) return "00:00:00";
     
-    // Format as HH:MM
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    // Convert to hours, minutes, seconds
+    const totalSeconds = Math.floor(elapsed / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    // Format as HH:MM:SS
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   // Toggle game status between Available and Unavailable
@@ -50,7 +65,7 @@ export default function GameList() {
     const game = updatedGames[index];
     
     if (game.status === "Available") {
-      // If making unavailable, prompt for table number
+      // If making unavailable, require a table number
       if (!tableNumber.trim()) {
         alert("Please enter a table number!");
         return;
