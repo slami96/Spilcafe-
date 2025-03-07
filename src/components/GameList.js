@@ -25,9 +25,6 @@ export default function GameList() {
     { name: "Wingspan", category: "Strategy", status: "Available", table: null, startTime: null, playerCount: null },
   ];
 
-  // Get unique categories from the games list
-  const categories = ["All", ...new Set(initialGames.map(game => game.category))];
-
   // Initialize game history from localStorage or empty array
   const [history, setHistory] = useState(() => {
     const savedHistory = localStorage.getItem('gameHistory');
@@ -37,8 +34,20 @@ export default function GameList() {
   const [games, setGames] = useState(() => {
     // Check if we have saved state in localStorage
     const savedGames = localStorage.getItem('cafeGames');
-    return savedGames ? JSON.parse(savedGames) : initialGames;
+    // Ensure all saved games have category information
+    if (savedGames) {
+      const parsedGames = JSON.parse(savedGames);
+      // If any saved game is missing a category, use the initialGames as a reference
+      if (parsedGames.some(game => !game.category)) {
+        return initialGames;
+      }
+      return parsedGames;
+    }
+    return initialGames;
   });
+  
+  // Get unique categories from the games list
+  const categories = ["All", ...Array.from(new Set(games.map(game => game.category)))];
   
   const [tableNumber, setTableNumber] = useState("");
   const [playerCount, setPlayerCount] = useState("");
@@ -303,23 +312,24 @@ export default function GameList() {
         <tbody>
           {filteredGames.map((game, index) => {
             // Find actual index in original array for proper toggle function
-            const originalIndex = games.findIndex(g => 
-              g.name === game.name && g.category === game.category
-            );
+            const originalIndex = games.findIndex(g => g.name === game.name);
             
             return (
-              <tr key={index} style={{ backgroundColor: game.status === "Unavailable" ? "#ffeeee" : "white" }}>
+              <tr key={originalIndex} style={{ backgroundColor: game.status === "Unavailable" ? "#ffeeee" : "white" }}>
                 <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.name}</td>
                 <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  <span style={{ 
-                    backgroundColor: getCategoryColor(game.category),
-                    color: "white",
-                    padding: "2px 6px",
-                    borderRadius: "4px",
-                    fontSize: "0.85em"
-                  }}>
-                    {game.category}
-                  </span>
+                  {game.category && (
+                    <span style={{ 
+                      display: "inline-block",
+                      backgroundColor: getCategoryColor(game.category),
+                      color: "white",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      fontSize: "0.85em"
+                    }}>
+                      {game.category}
+                    </span>
+                  )}
                 </td>
                 <td style={{ padding: "8px", border: "1px solid #ddd", fontWeight: "bold" }}>{game.status}</td>
                 <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.table || "-"}</td>
@@ -343,6 +353,13 @@ export default function GameList() {
               </tr>
             );
           })}
+          {filteredGames.length === 0 && (
+            <tr>
+              <td colSpan="7" style={{ padding: "20px", textAlign: "center" }}>
+                No games found in this category. Please select a different category.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
       
@@ -372,6 +389,7 @@ export default function GameList() {
                     <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                       {entry.category && (
                         <span style={{ 
+                          display: "inline-block",
                           backgroundColor: getCategoryColor(entry.category),
                           color: "white",
                           padding: "2px 6px",
