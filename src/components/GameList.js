@@ -401,7 +401,7 @@ export default function GameList() {
       </header>
       
       <div className="panel-card">
-        <h2>Game Management</h2>
+        <h2 style={{ textAlign: 'center' }}>Select table, enter players, assign game</h2>
         
         <div className="form-group">
           <div>
