@@ -397,11 +397,11 @@ export default function GameList() {
   return (
     <div className="container">
       <header className="header">
-        <h1>Board Game Cafe Management</h1>
+        <h1>Game Management system</h1>
       </header>
       
       <div className="panel-card">
-        <h2 style={{ textAlign: 'center' }}>Select table, enter players, assign game</h2>
+        <h2 style={{ textAlign: 'center' }}>Select the table assign the game</h2>
         
         <div className="form-group">
           <div>
