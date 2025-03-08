@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "./styles.css"; // Importing the correct CSS file
 
 export default function GameList() {
   // Predefined list of 20 famous games with categories and descriptions
@@ -377,193 +378,162 @@ export default function GameList() {
     }
   };
 
-  // Get color for category labels
-  const getCategoryColor = (category) => {
-    const colors = {
-      "Strategy": "#4a6fa5",
-      "Family": "#53a567",
-      "Word": "#9c59b6",
-      "Card": "#e67e22",
-      "Party": "#f1c40f",
-      "Cooperative": "#3498db",
-      "Abstract": "#e74c3c",
-      "Mystery": "#8e44ad",
-      "Dexterity": "#d35400"
+  // Get CSS class for category tags
+  const getCategoryClass = (category) => {
+    const categoryMap = {
+      "Strategy": "tag-strategy",
+      "Family": "tag-family",
+      "Word": "tag-word",
+      "Card": "tag-card",
+      "Party": "tag-party",
+      "Cooperative": "tag-cooperative",
+      "Abstract": "tag-abstract",
+      "Mystery": "tag-abstract", // Fallback to abstract for mystery
+      "Dexterity": "tag-abstract" // Fallback to abstract for dexterity
     };
-    return colors[category] || "#7f8c8d"; // Default color if category not found
-  };
-
-  // Get the background color for the description modal based on the game category
-  const getModalHeaderColor = (category) => {
-    return getCategoryColor(category);
+    return categoryMap[category] || "tag-abstract"; // Default tag style
   };
 
   return (
-    <div>
-      <h1>Board Game Cafe Management</h1>
-      <h2>Game Management</h2>
+    <div className="container">
+      <header className="header">
+        <h1>Board Game Cafe Management</h1>
+      </header>
       
-      <div style={{ marginBottom: "10px" }}>
-        <div style={{ marginBottom: "5px" }}>
-          <label htmlFor="tableNumber" style={{ marginRight: "5px" }}>Table Number:</label>
-          <input
-            type="text"
-            id="tableNumber"
-            value={tableNumber}
-            onChange={(e) => setTableNumber(e.target.value)}
-            placeholder="Enter table #"
-            style={{ marginRight: "15px" }}
-          />
+      <div className="panel-card">
+        <h2>Game Management</h2>
+        
+        <div className="form-group">
+          <div>
+            <label htmlFor="tableNumber">Table Number:</label>
+            <input
+              type="text"
+              id="tableNumber"
+              className="form-control"
+              value={tableNumber}
+              onChange={(e) => setTableNumber(e.target.value)}
+              placeholder="Enter table #"
+            />
+          </div>
           
-          <label htmlFor="playerCount" style={{ marginRight: "5px" }}>Number of Players:</label>
-          <input
-            type="number"
-            id="playerCount"
-            min="1"
-            value={playerCount}
-            onChange={(e) => setPlayerCount(e.target.value)}
-            placeholder="Enter player count"
-          />
+          <div>
+            <label htmlFor="playerCount">Number of Players:</label>
+            <input
+              type="number"
+              id="playerCount"
+              className="form-control"
+              min="1"
+              value={playerCount}
+              onChange={(e) => setPlayerCount(e.target.value)}
+              placeholder="Enter player count"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="categoryFilter">Filter by Category:</label>
+            <select 
+              id="categoryFilter" 
+              className="form-control"
+              value={selectedCategory} 
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              {categories.map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
         </div>
         
-        <div style={{ fontWeight: "bold", marginTop: "5px", marginBottom: "15px" }}>
-          Total Active Players: {totalPlayers}
-        </div>
-
-        {/* Category filter */}
-        <div style={{ marginBottom: "15px" }}>
-          <label htmlFor="categoryFilter" style={{ marginRight: "10px" }}>Filter by Category:</label>
-          <select 
-            id="categoryFilter" 
-            value={selectedCategory} 
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            style={{
-              padding: "5px 10px",
-              borderRadius: "4px",
-              border: "1px solid #ddd"
-            }}
-          >
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-        </div>
-        
-        <button 
-          onClick={() => setShowHistory(!showHistory)} 
-          style={{
-            padding: "5px 10px",
-            backgroundColor: "#6a89cc",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            marginRight: "10px"
-          }}
-        >
-          {showHistory ? "Hide History" : "Show History"}
-        </button>
-        
-        {showHistory && 
+        <div className="form-group">
+          <div>
+            <strong>Total Active Players: {totalPlayers}</strong>
+          </div>
+          
           <button 
-            onClick={clearHistory} 
-            style={{
-              padding: "5px 10px",
-              backgroundColor: "#eb4d4b",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer"
-            }}
+            onClick={() => setShowHistory(!showHistory)} 
+            className="btn btn-primary"
           >
-            Clear History
+            {showHistory ? "Hide History" : "Show History"}
           </button>
-        }
-      </div>
-      
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#f2f2f2" }}>
-            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Game</th>
-            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Category</th>
-            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Status</th>
-            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Table</th>
-            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Players</th>
-            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Time in Use</th>
-            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Info</th>
-            <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredGames.map((game, index) => {
-            // Find actual index in original array for proper toggle function
-            const originalIndex = games.findIndex(g => g.name === game.name);
-            
-            return (
-              <tr key={originalIndex} style={{ backgroundColor: game.status === "Unavailable" ? "#ffeeee" : "white" }}>
-                <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.name}</td>
-                <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  {game.category && (
-                    <span style={{ 
-                      display: "inline-block",
-                      backgroundColor: getCategoryColor(game.category),
-                      color: "white",
-                      padding: "2px 6px",
-                      borderRadius: "4px",
-                      fontSize: "0.85em"
-                    }}>
-                      {game.category}
-                    </span>
-                  )}
-                </td>
-                <td style={{ padding: "8px", border: "1px solid #ddd", fontWeight: "bold" }}>{game.status}</td>
-                <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.table || "-"}</td>
-                <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.playerCount || "-"}</td>
-                <td style={{ padding: "8px", border: "1px solid #ddd" }}>{game.startTime ? getElapsedTime(game.startTime) : "-"}</td>
-                <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  <button
-                    onClick={() => showGameDescription(game)}
-                    style={{
-                      padding: "3px 8px",
-                      backgroundColor: "#34495e",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontSize: "0.9em"
-                    }}
-                  >
-                    <span role="img" aria-label="info" style={{ marginRight: "4px" }}>ℹ️</span>
-                    Details
-                  </button>
-                </td>
-                <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  <button 
-                    onClick={() => toggleStatus(originalIndex)}
-                    style={{
-                      padding: "5px 10px",
-                      backgroundColor: game.status === "Available" ? "#ff6b6b" : "#4ecdc4",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Mark as {game.status === "Available" ? "Unavailable" : "Available"}
-                  </button>
-                </td>
+          
+          {showHistory && 
+            <button 
+              onClick={clearHistory} 
+              className="btn btn-unavailable"
+            >
+              Clear History
+            </button>
+          }
+        </div>
+        
+        <div className="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Game</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Table</th>
+                <th>Players</th>
+                <th>Time in Use</th>
+                <th>Info</th>
+                <th>Actions</th>
               </tr>
-            );
-          })}
-          {filteredGames.length === 0 && (
-            <tr>
-              <td colSpan="8" style={{ padding: "20px", textAlign: "center" }}>
-                No games found in this category. Please select a different category.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {filteredGames.map((game, index) => {
+                // Find actual index in original array for proper toggle function
+                const originalIndex = games.findIndex(g => g.name === game.name);
+                
+                return (
+                  <tr key={originalIndex}>
+                    <td>{game.name}</td>
+                    <td>
+                      {game.category && (
+                        <span className={`tag ${getCategoryClass(game.category)}`}>
+                          {game.category}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      <span className={`status ${game.status === "Available" ? "status-available" : "status-in-use"}`}>
+                        {game.status}
+                      </span>
+                    </td>
+                    <td>{game.table || "-"}</td>
+                    <td>{game.playerCount || "-"}</td>
+                    <td>{game.startTime ? getElapsedTime(game.startTime) : "-"}</td>
+                    <td>
+                      <button
+                        onClick={() => showGameDescription(game)}
+                        className="action-btn btn-details"
+                      >
+                        <span role="img" aria-label="info" style={{ marginRight: "4px" }}>ℹ️</span>
+                        Details
+                      </button>
+                    </td>
+                    <td>
+                      <button 
+                        onClick={() => toggleStatus(originalIndex)}
+                        className={`action-btn ${game.status === "Available" ? "btn-unavailable" : "btn-primary"}`}
+                      >
+                        Mark as {game.status === "Available" ? "Unavailable" : "Available"}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {filteredGames.length === 0 && (
+                <tr>
+                  <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                    No games found in this category. Please select a different category.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
       
       {/* Game Description Modal */}
       {showDescriptionModal && selectedGameForDescription && (
@@ -579,69 +549,71 @@ export default function GameList() {
           alignItems: "center",
           zIndex: 1000
         }}>
-          <div style={{
-            backgroundColor: "white",
-            borderRadius: "8px",
-            width: "90%",
-            maxWidth: "600px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-            overflow: "hidden"
-          }}>
-            <div style={{
-              backgroundColor: getModalHeaderColor(selectedGameForDescription.category),
-              color: "white",
-              padding: "12px 20px",
+          <div className="panel-card" style={{ width: "90%", maxWidth: "600px", margin: 0 }}>
+            <div style={{ 
+              marginBottom: "15px", 
+              padding: "10px", 
+              borderRadius: "4px 4px 0 0",
+              backgroundColor: "#1a1a1a",
+              marginTop: "-20px",
+              marginLeft: "-20px",
+              marginRight: "-20px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center"
             }}>
-              <h3 style={{ margin: 0 }}>{selectedGameForDescription.name}</h3>
+              <h3 style={{ margin: 0, color: "white" }}>{selectedGameForDescription.name}</h3>
               <span 
                 role="button" 
                 onClick={hideDescriptionModal}
                 style={{ 
                   cursor: "pointer", 
                   fontSize: "24px",
-                  fontWeight: "bold"
+                  fontWeight: "bold",
+                  color: "white"
                 }}
               >
                 &times;
               </span>
             </div>
-            <div style={{ padding: "20px" }}>
+            
+            <div>
               <div style={{ marginBottom: "15px" }}>
-                <strong>Category:</strong> {selectedGameForDescription.category}
+                <strong>Category:</strong>{" "}
+                <span className={`tag ${getCategoryClass(selectedGameForDescription.category)}`}>
+                  {selectedGameForDescription.category}
+                </span>
               </div>
+              
               <div style={{ marginBottom: "15px" }}>
                 <strong>Description:</strong>
                 <p>{selectedGameForDescription.description}</p>
               </div>
+              
               <div style={{ 
                 padding: "10px", 
-                backgroundColor: "#f8f9fa", 
+                backgroundColor: "#f8f9f9", 
                 borderRadius: "4px",
                 marginBottom: "15px"
               }}>
-                <strong>Status:</strong> {selectedGameForDescription.status}
+                <strong>Status: </strong>
+                <span className={`status ${selectedGameForDescription.status === "Available" ? "status-available" : "status-in-use"}`}>
+                  {selectedGameForDescription.status}
+                </span>
+                
                 {selectedGameForDescription.status === "Unavailable" && (
-                  <div>
+                  <div style={{ marginTop: "10px" }}>
                     <div><strong>Table:</strong> {selectedGameForDescription.table}</div>
                     <div><strong>Players:</strong> {selectedGameForDescription.playerCount}</div>
                     <div><strong>Time in Use:</strong> {getElapsedTime(selectedGameForDescription.startTime)}</div>
                   </div>
                 )}
               </div>
+              
               <div style={{ textAlign: "right" }}>
                 <button 
                   onClick={hideDescriptionModal}
-                  style={{
-                    padding: "8px 16px",
-                    backgroundColor: "#6a89cc",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
+                  className="btn btn-primary"
                 >
                   Close
                 </button>
@@ -653,50 +625,45 @@ export default function GameList() {
       
       {/* History Section */}
       {showHistory && (
-        <div>
+        <div className="panel-card">
           <h2>Game Usage History</h2>
           {history.length === 0 ? (
             <p>No history yet. History will be recorded when games are returned.</p>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ backgroundColor: "#f2f2f2" }}>
-                  <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Game</th>
-                  <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Category</th>
-                  <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Table</th>
-                  <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Players</th>
-                  <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Start Time</th>
-                  <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>End Time</th>
-                  <th style={{ padding: "8px", textAlign: "left", border: "1px solid #ddd" }}>Total Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((entry) => (
-                  <tr key={entry.id}>
-                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>{entry.gameName}</td>
-                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                      {entry.category && (
-                        <span style={{ 
-                          display: "inline-block",
-                          backgroundColor: getCategoryColor(entry.category),
-                          color: "white",
-                          padding: "2px 6px",
-                          borderRadius: "4px",
-                          fontSize: "0.85em"
-                        }}>
-                          {entry.category}
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>{entry.table}</td>
-                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>{entry.playerCount}</td>
-                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>{formatDate(entry.startTime)}</td>
-                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>{formatDate(entry.endTime)}</td>
-                    <td style={{ padding: "8px", border: "1px solid #ddd", fontWeight: "bold" }}>{entry.totalTime}</td>
+            <div className="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Game</th>
+                    <th>Category</th>
+                    <th>Table</th>
+                    <th>Players</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Total Time</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {history.map((entry) => (
+                    <tr key={entry.id}>
+                      <td>{entry.gameName}</td>
+                      <td>
+                        {entry.category && (
+                          <span className={`tag ${getCategoryClass(entry.category)}`}>
+                            {entry.category}
+                          </span>
+                        )}
+                      </td>
+                      <td>{entry.table}</td>
+                      <td>{entry.playerCount}</td>
+                      <td>{formatDate(entry.startTime)}</td>
+                      <td>{formatDate(entry.endTime)}</td>
+                      <td><strong>{entry.totalTime}</strong></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
