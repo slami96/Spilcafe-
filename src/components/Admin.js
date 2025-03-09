@@ -5,10 +5,8 @@ import LogoutButton from "./LogoutButton";
 export default function Admin() {
   return (
     <div>
-      <div className="admin-header">
-        <img src="/images/spilcafe_logo.png" alt="Board Game Cafe Logo" className="cafe-logo" />
-        <LogoutButton />
-      </div>
+      <img src="/images/spilcafe_logo .png" alt="Board Game Cafe Logo" className="cafe-logo" />
+      <LogoutButton />
       <GameList />
     </div>
   );
