@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Admin from "./components/Admin";
-import { AuthProvider } from './AuthContext';
+import { AuthProvider } from './AuthContext'; // Path correction
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
