@@ -1,28 +1,20 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+// src/AuthContext.jsx
+import { createContext, useState, useEffect } from 'react';
+import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './auth';
 
-// Create the context
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
-// Custom hook to use the auth context
-export function useAuth() {
-  return useContext(AuthContext);
-}
-
-// Provider component
-export function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Subscribe to auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return unsubscribe;
   }, []);
 
@@ -33,7 +25,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
-}
+};
